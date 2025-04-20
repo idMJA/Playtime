@@ -1,0 +1,130 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'xyz.jpenilla.run-paper' version '2.2.2'
+}
+
+group = 'my.mjba'
+version = '1.0-SNAPSHOT'
+
+// Minecraft version configuration
+ext {
+    mcVersions = [
+        // 1.21.x
+        '1.21.4', '1.21.3', '1.21.1', '1.21',
+        // 1.20.x
+        '1.20.6', '1.20.5', '1.20.4', '1.20.2', '1.20.1', '1.20',
+        // 1.19.x
+        '1.19.4', '1.19.3', '1.19.2', '1.19.1', '1.19',
+        // 1.18.x
+        '1.18.2', '1.18.1', '1.18',
+        // 1.17.x
+        '1.17.1', '1.17',
+        // 1.16.x
+        '1.16.5', '1.16.4', '1.16.3', '1.16.2', '1.16.1',
+        // 1.15.x
+        '1.15.2', '1.15.1', '1.15',
+        // 1.14.x
+        '1.14.4', '1.14.3', '1.14.2', '1.14.1', '1.14',
+        // 1.13.x
+        '1.13.2', '1.13.1', '1.13',
+        // Legacy versions (if needed)
+        '1.12.2', '1.12.1', '1.12',
+        '1.11.2',
+        '1.10.2',
+        '1.9.4',
+        '1.8.8'
+    ]
+    defaultMcVersion = mcVersions[0] // Default to latest version
+    
+    // Define Java version requirements for different MC versions
+    // Using optimal Java versions for each MC version
+    javaVersionMap = [
+        '1.21': 21, // Latest Java for newest versions
+        '1.20': 21,
+        '1.19': 21,
+        '1.18': 17, // Minimum Java 17
+        '1.17': 16, // Minimum Java 16
+        '1.16': 11, // Minimum Java 11
+        '1.15': 8,  // Minimum Java 8
+        '1.14': 8,
+        '1.13': 8,
+        '1.12': 8,
+        '1.11': 8,
+        '1.10': 8,
+        '1.9': 8,
+        '1.8': 8
+    ]
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'placeholderapi'
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
+}
+
+dependencies {
+    // Use project property or default to latest version
+    def mcVersion = project.hasProperty('mcVersion') ? project.getProperty('mcVersion') : defaultMcVersion
+    compileOnly "io.papermc.paper:paper-api:${mcVersion}-R0.1-SNAPSHOT"
+    
+    // Use appropriate PlaceholderAPI version based on MC version
+    if (mcVersion.startsWith('1.8')) {
+        compileOnly 'me.clip:placeholderapi:2.10.9'
+    } else {
+        compileOnly 'me.clip:placeholderapi:2.11.6'
+    }
+}
+
+// Determine Java version based on MC version
+def getMcMajorVersion(version) {
+    def parts = version.split('\\.')
+    return "${parts[0]}.${parts[1]}"
+}
+
+def getJavaVersion() {
+    def mcVersion = project.hasProperty('mcVersion') ? project.getProperty('mcVersion') : defaultMcVersion
+    def majorVersion = getMcMajorVersion(mcVersion)
+    return javaVersionMap.find { k, v -> majorVersion.startsWith(k) }?.value ?: 21 // Default to Java 21 if no match
+}
+
+def targetJavaVersion = getJavaVersion()
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
+    }
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    def props = [
+        'version': version
+    ]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+// Create tasks for each Minecraft version
+mcVersions.each { mcVer ->
+    tasks.register("runServer${mcVer.replace('.', '_')}", xyz.jpenilla.runpaper.task.RunServerTask) {
+        minecraftVersion(mcVer)
+    }
+}

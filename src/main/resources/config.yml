@@ -1,0 +1,32 @@
+# Playtime Plugin Configuration
+
+# Whether to show playtime in days, hours, minutes format
+# If false, will show in total minutes
+show-detailed-time: true
+
+# Message formats
+messages:
+  playtime-self: "&7Your PlayTime:\n&a%time%"
+  playtime-other: "&7%player%'s PlayTime:\n&a%time%"
+  joins: "&7%joins%x Joined"
+  top-header: "&7Top PlayTime:"
+  top-format: "&7#%position%. &a%player% &7- &a%time%"
+  reload-success: "&a[PlayTime] &7Configuration reloaded successfully!"
+  reload-error: "&c[PlayTime] &7Error reloading configuration!"
+  no-permission: "&c[PlayTime] &7You don't have permission to use this command!"
+  player-not-found: "&c[PlayTime] &7Player not found!"
+  console-error: "&c[PlayTime] &7Console must specify a player name!"
+  invalid-number: "&c[PlayTime] &7Invalid number specified!"
+  plugin-enabled: "&a[PlayTime] &7Plugin has been enabled successfully!"
+  plugin-disabled: "&c[PlayTime] &7Plugin has been disabled!"
+  data-saved: "&a[PlayTime] &7All playtime data has been saved!"
+  placeholders-registered: "&a[PlayTime] &7PlaceholderAPI integration enabled!"
+  placeholders-not-found: "&c[PlayTime] &7PlaceholderAPI not found! Placeholders will not work."
+
+# Color settings
+colors:
+  primary: "&a"  # Main color for playtime display
+  secondary: "&7"  # Secondary color for additional information
+  accent: "&e"  # Accent color for highlights
+  error: "&c"  # Error messages
+  success: "&a"  # Success messages 

@@ -1,0 +1,32 @@
+name: Playtime
+version: '${version}'
+main: my.mjba.playtime.Playtime
+api-version: '1.13'
+authors: [iaMJ]
+description: A plugin to track player playtime
+softdepend: [PlaceholderAPI]
+
+commands:
+  playtime:
+    description: View playtime statistics
+    usage: /<command> [player|top [amount]]
+    aliases: [pt]
+    permission: playtime.use
+  playtimereload:
+    description: Reload the plugin configuration
+    usage: /<command>
+    permission: playtime.reload
+
+permissions:
+  playtime.use:
+    description: Allows using the playtime command
+    default: true
+  playtime.others:
+    description: Allows viewing other players' playtime
+    default: op
+  playtime.top:
+    description: Allows viewing the top playtime list
+    default: true
+  playtime.reload:
+    description: Allows reloading the plugin configuration
+    default: op
