@@ -172,6 +172,129 @@ First run will:
 3. Generate eula.txt (you need to accept it)
 4. Install the plugin automatically
 
+## Building for Production
+
+#### Prerequisites
+
+1. Install JDK 21 (recommended for latest versions)
+2. Install Git
+3. Install [Gradle](https://gradle.org/install/) (optional, but recommended for production builds)
+
+#### Production Build Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/idMJA/Playtime.git
+cd Playtime
+```
+
+2. Clean and build with production settings:
+
+```bash
+# Windows
+.\gradlew.bat clean build --no-daemon --parallel --build-cache
+
+# Linux/macOS
+./gradlew clean build --no-daemon --parallel --build-cache
+```
+
+3. Find the production build:
+   - Location: `build/libs/Playtime-1.0-SNAPSHOT.jar`
+   - Size: Should be around 100-200KB
+   - SHA-256 checksum will be generated in `build/libs/Playtime-1.0-SNAPSHOT.jar.sha256`
+
+#### Production Build Options
+
+1. Build for specific Minecraft version:
+
+```bash
+# Example for 1.16.5
+./gradlew clean build -PmcVersion=1.16.5 --no-daemon --parallel --build-cache
+```
+
+2. Build with custom version:
+
+```bash
+# Example: Set version to 1.0.0
+./gradlew clean build -Pversion=1.0.0 --no-daemon --parallel --build-cache
+```
+
+3. Build with debug information removed:
+
+```bash
+./gradlew clean build -PstripDebug=true --no-daemon --parallel --build-cache
+```
+
+#### Production Build Best Practices
+
+1. Always use `--no-daemon` flag to ensure clean builds
+2. Use `--parallel` for faster builds on multi-core systems
+3. Enable `--build-cache` for faster subsequent builds
+4. Verify the build:
+   - Check file size (should be reasonable)
+   - Verify SHA-256 checksum
+   - Test on a clean server instance
+
+#### Building for Multiple Versions
+
+1. Create a build script (build.sh or build.bat):
+
+```bash
+#!/bin/bash
+versions=("1.16.5" "1.17.1" "1.18.2" "1.19.4" "1.20.4" "1.21.4")
+
+for version in "${versions[@]}"
+do
+    echo "Building for Minecraft $version..."
+    ./gradlew clean build -PmcVersion=$version --no-daemon --parallel --build-cache
+    mv build/libs/Playtime-1.0-SNAPSHOT.jar build/libs/Playtime-$version.jar
+done
+```
+
+2. Run the script:
+
+```bash
+# Make executable (Linux/macOS)
+chmod +x build.sh
+./build.sh
+```
+
+#### Verifying Production Builds
+
+1. Check build output:
+
+```bash
+# Windows
+certutil -hashfile build/libs/Playtime-1.0-SNAPSHOT.jar SHA256
+
+# Linux/macOS
+shasum -a 256 build/libs/Playtime-1.0-SNAPSHOT.jar
+```
+
+2. Test the build:
+   - Copy to a clean test server
+   - Verify plugin loads without errors
+   - Check all features work as expected
+   - Monitor server performance
+
+#### Troubleshooting Production Builds
+
+1. If build fails:
+   - Check Java version compatibility
+   - Verify Gradle version
+   - Clean Gradle cache: `./gradlew cleanBuildCache`
+
+2. If plugin doesn't load:
+   - Check server logs
+   - Verify dependencies
+   - Test with different Java versions
+
+3. If performance issues:
+   - Check for memory leaks
+   - Monitor CPU usage
+   - Verify thread safety
+
 ## Contributing
 
 1. Fork the repository
