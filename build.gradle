@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'xyz.jpenilla.run-paper' version '2.2.2'
+    id 'io.papermc.paperweight.userdev' version '1.5.11'
 }
 
 group = 'my.mjba'
@@ -35,7 +35,7 @@ ext {
         '1.9.4',
         '1.8.8'
     ]
-    defaultMcVersion = mcVersions[0] // Default to latest version
+    defaultMcVersion = '1.20.4' // Default to a stable version
     
     // Define Java version requirements for different MC versions
     // Using optimal Java versions for each MC version
@@ -72,7 +72,7 @@ repositories {
 dependencies {
     // Use project property or default to latest version
     def mcVersion = project.hasProperty('mcVersion') ? project.getProperty('mcVersion') : defaultMcVersion
-    compileOnly "io.papermc.paper:paper-api:${mcVersion}-R0.1-SNAPSHOT"
+    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:${mcVersion}-R0.1-SNAPSHOT")
     
     // Use appropriate PlaceholderAPI version based on MC version
     if (mcVersion.startsWith('1.8')) {
@@ -124,7 +124,9 @@ processResources {
 
 // Create tasks for each Minecraft version
 mcVersions.each { mcVer ->
-    tasks.register("runServer${mcVer.replace('.', '_')}", xyz.jpenilla.runpaper.task.RunServerTask) {
-        minecraftVersion(mcVer)
+    tasks.register("runServer${mcVer.replace('.', '_')}", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+        archiveClassifier.set("server-${mcVer}")
+        from sourceSets.main.output
+        configurations = [project.configurations.runtimeClasspath]
     }
 }
